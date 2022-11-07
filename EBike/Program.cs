@@ -73,7 +73,6 @@ static void generateLocations(int choosenLocation)
 
             new LocationArea
             {
-                Area = "",
                 Url = fullUrl,
                 Name = getName,
                 Index = indexnum.ToString()
@@ -82,25 +81,17 @@ static void generateLocations(int choosenLocation)
 
             foreach (var l in Locations)
             {
+                string strPageCode2 = client.DownloadString(l.Url);
+                dynamic dobj2 = JsonConvert.DeserializeObject<dynamic>(strPageCode2);
+                string bikesAvailable = dobj2["mobilityOption"]["station"]["occupancy"];
 
-                if (l.Area.Contains("", StringComparison.InvariantCultureIgnoreCase))
-                {
+                Console.WriteLine(l.Name + ": " + "BIKES AVAILABLE: " + bikesAvailable + "  INDEX = " + l.Index);
 
-                    string strPageCode2 = client.DownloadString(l.Url);
-                    dynamic dobj2 = JsonConvert.DeserializeObject<dynamic>(strPageCode2);
-                    string bikesAvailable = dobj2["mobilityOption"]["station"]["occupancy"];
-
-                    Console.WriteLine(l.Name + ": " + "BIKES AVAILABLE: " + bikesAvailable + "  INDEX = " + l.Index);
-
-                    ListOfURLS.Add(l.Index + " " + l.Url);
-
-                }
+                ListOfURLS.Add(l.Index + " " + l.Url);
             }
 
         }
     }
-
-
 
 
     Console.WriteLine("Would you like to see more info about specific location? Y/N");
@@ -114,13 +105,8 @@ static void generateLocations(int choosenLocation)
         // SPLIT TO TAKE ONLY THE URL
         var urlForFunc = ListOfURLS[indexNum - 1].Split(" ");
         MoreInfo(urlForFunc[1]);
-
     }
-
-
-
 }
-
 
 
 static void MoreInfo(string url)
@@ -147,7 +133,6 @@ static void MoreInfo(string url)
 
 public class LocationArea
 {
-    public string Area { get; set; }
     public string Url { get; set; }
 
     public string Name { get; set; }
