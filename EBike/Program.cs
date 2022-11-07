@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net;
 
 
@@ -7,15 +8,15 @@ Console.WriteLine("1. Östermalm \n2. Gärdet \n3. Odenplan");
 int choosenLocation = Convert.ToInt32(Console.ReadLine());
 
 generateLocations(choosenLocation);
-
+//testArea();
 
 static void generateLocations(int choosenLocation)
 {
-
+    //URL EXT FOR JSON DATA
     string urlExt = "?_data=routes%2Fmap%2Fdetail.%24optionId";
 
 
-
+    //IMPORT URLS FOR LOCATION
     string[] östermalmUrls =
     {
         "https://stockholmebikes.se/map/detail/a679c4c4-01e6-4c44-9cb7-13b2c34ecbc2",
@@ -39,6 +40,7 @@ static void generateLocations(int choosenLocation)
         "https://stockholmebikes.se/map/detail/37350b74-9532-4f65-a727-53f64db7b406",
         "https://stockholmebikes.se/map/detail/e55d9f5f-cff5-445d-a72d-dd8ce1473514"
     };
+
     var setLocation = (String[])null;
     switch (choosenLocation)
     {
@@ -54,6 +56,9 @@ static void generateLocations(int choosenLocation)
 
     }
 
+    int indexnum = 0;
+    List<string> ListOfURLS = new List<string>();
+
 
     foreach (var url in setLocation)
     {
@@ -63,37 +68,89 @@ static void generateLocations(int choosenLocation)
             string strPageCode = client.DownloadString(fullUrl.Trim());
             dynamic dobj = JsonConvert.DeserializeObject<dynamic>(strPageCode);
             string getName = dobj["mobilityOption"]["station"]["name"];
-            var Locations = new List<Location>() {
+            indexnum++;
+            var Locations = new List<LocationArea>() {
 
-            new Location
+            new LocationArea
             {
-                Area = "Odenplan",
+                Area = "",
                 Url = fullUrl,
-                Name = getName
-            }
+                Name = getName,
+                Index = indexnum.ToString()
+        }
         };
-
-
-
 
             foreach (var l in Locations)
             {
-                if (l.Area.Contains("Odenplan", StringComparison.InvariantCultureIgnoreCase))
+
+                if (l.Area.Contains("", StringComparison.InvariantCultureIgnoreCase))
                 {
+
                     string strPageCode2 = client.DownloadString(l.Url);
                     dynamic dobj2 = JsonConvert.DeserializeObject<dynamic>(strPageCode2);
-                    string temp2 = dobj2["mobilityOption"]["station"]["occupancy"];
-                    Console.WriteLine(l.Name + ": " + temp2 + "\r\n");
+                    string bikesAvailable = dobj2["mobilityOption"]["station"]["occupancy"];
+
+                    Console.WriteLine(l.Name + ": " + "BIKES AVAILABLE: " + bikesAvailable + "  INDEX = " + l.Index);
+
+                    ListOfURLS.Add(l.Index + " " + l.Url);
+
                 }
             }
+
+        }
+    }
+
+
+
+
+    Console.WriteLine("Would you like to see more info about specific location? Y/N");
+    string answerYesOrNo = Convert.ToString(Console.ReadLine());
+
+    if (answerYesOrNo.Contains("y", StringComparison.InvariantCultureIgnoreCase))
+    {
+        Console.WriteLine("Which location index would you like to check?");
+        int indexNum = Convert.ToInt32(Console.ReadLine());
+
+        // SPLIT TO TAKE ONLY THE URL
+        var urlForFunc = ListOfURLS[indexNum - 1].Split(" ");
+        MoreInfo(urlForFunc[1]);
+
+    }
+
+
+
+}
+
+
+
+static void MoreInfo(string url)
+{
+    WebClient client = new WebClient();
+    string strPageCode = client.DownloadString(url);
+    dynamic dobj = JsonConvert.DeserializeObject<dynamic>(strPageCode);
+    JArray items = (JArray)dobj["mobilityOption"]["station"]["vehicles"];
+    int length = items.Count;
+    Console.WriteLine(url + "\n \n");
+
+    for (int i = 0; i < length; i++)
+    {
+
+        var licPlate = dobj["mobilityOption"]["station"]["vehicles"][i]["licensePlate"];
+        var batteryLevel = dobj["mobilityOption"]["station"]["vehicles"][i]["energyGauge"];
+        if (licPlate != null && batteryLevel != null)
+        {
+            Console.WriteLine("BIKE ID: " + licPlate + "\nBATTERY LEVEL: " + batteryLevel + "\n \n");
         }
     }
 }
-public class Location
+
+
+public class LocationArea
 {
     public string Area { get; set; }
     public string Url { get; set; }
 
     public string Name { get; set; }
+    public string Index { get; set; }
 
 }
