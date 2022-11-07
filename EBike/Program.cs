@@ -4,7 +4,7 @@ using System.Net;
 
 
 Console.WriteLine("Location?");
-Console.WriteLine("1. Östermalm \n2. Gärdet \n3. Odenplan");
+Console.WriteLine("1. Östermalm \n2. Gärdet \n3. Odenplan \n4. Slussen/Medis \n5. Skanstull");
 int choosenLocation = Convert.ToInt32(Console.ReadLine());
 
 generateLocations(choosenLocation);
@@ -14,6 +14,7 @@ static void generateLocations(int choosenLocation)
 {
     //URL EXT FOR JSON DATA
     string urlExt = "?_data=routes%2Fmap%2Fdetail.%24optionId";
+
 
 
     //IMPORT URLS FOR LOCATION
@@ -41,6 +42,24 @@ static void generateLocations(int choosenLocation)
         "https://stockholmebikes.se/map/detail/e55d9f5f-cff5-445d-a72d-dd8ce1473514"
     };
 
+    string[] slussenmedisUrls =
+    {
+        "https://stockholmebikes.se/map/detail/e0e79e75-93bd-4398-b3e0-5db2c81c349b",
+        "https://stockholmebikes.se/map/detail/71e0ac89-db41-4e7b-9404-582767594026",
+        "https://stockholmebikes.se/map/detail/8ba3983b-cee2-41cd-a24c-01517af95a47",
+        "https://stockholmebikes.se/map/detail/60120bb7-f90a-48f6-aa3c-6efe92195fd0"
+    };
+
+    string[] skanstullUrls =
+    {
+        "https://stockholmebikes.se/map/detail/63253761-1360-40b1-aff1-2d18cd054180",
+        "https://stockholmebikes.se/map/detail/d874a261-90c5-4dc6-b120-17fd378a461e",
+        "https://stockholmebikes.se/map/detail/c40527cb-d84c-4704-93d3-2b2ee7eed99f",
+        "https://stockholmebikes.se/map/detail/551ad7c7-a918-4c69-aa7e-6110d567c395",
+        "https://stockholmebikes.se/map/detail/60120bb7-f90a-48f6-aa3c-6efe92195fd0"
+    };
+
+
     var setLocation = (String[])null;
     switch (choosenLocation)
     {
@@ -52,6 +71,12 @@ static void generateLocations(int choosenLocation)
             break;
         case 3:
             setLocation = odenplanUrls;
+            break;
+        case 4:
+            setLocation = slussenmedisUrls;
+            break;
+        case 5:
+            setLocation = skanstullUrls;
             break;
 
     }
