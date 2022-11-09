@@ -2,13 +2,45 @@
 using Newtonsoft.Json.Linq;
 using System.Net;
 
-
 Console.WriteLine("Location?");
 Console.WriteLine("1. Östermalm \n2. Gärdet \n3. Odenplan \n4. Slussen/Medis \n5. Skanstull");
 int choosenLocation = Convert.ToInt32(Console.ReadLine());
-
 generateLocations(choosenLocation);
-//testArea();
+
+
+//getCurrentLocationAsync();
+
+
+static void getCurrentLocation()
+{
+    Console.WriteLine("Address: ");
+    var address = Convert.ToString(Console.ReadLine());
+    //REPLACE SPACE WITH %20 (URL ENCODING)
+    address = address.Replace(" ", "%20");
+    //ADD STOCKHOLM SWEDEN TO MAKE SURE THERE ISNT A STREET WITH THE SAME NAME IN ANOTHER COUNTRY
+    address = address + "%20Stockholm%20Sweden";
+
+    //API KEY GET ONE FOR FREE AT POSITIONSTACK.COM
+    string MAP_API_KEY = "TEST";
+
+
+    string fullUrl = ("http://api.positionstack.com/v1/forward?access_key=" + MAP_API_KEY + "&query=" + address);
+
+
+    WebClient client = new WebClient();
+    string request = client.DownloadString(fullUrl);
+    dynamic response = JsonConvert.DeserializeObject<dynamic>(request);
+    string longitude = response["data"][0]["longitude"];
+    string latitude = response["data"][0]["latitude"];
+
+    Console.WriteLine("LONG: " + longitude + "\nLatitude: " + latitude);
+}
+
+
+static void testArea()
+{
+    //TestArea
+}
 
 static void generateLocations(int choosenLocation)
 {
@@ -154,6 +186,7 @@ static void MoreInfo(string url)
         }
     }
 }
+
 
 
 public class LocationArea
