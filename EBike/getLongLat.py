@@ -103,8 +103,8 @@ for url in urls:
     latitude = str(latitude)
     currentcount = str(counter)
     print("Current line: " + str(currentcount))
-    df.write('StationsLocation' + ' url' + currentcount +
-             '=new StationsLocation("' + longitude + ', "' + latitude + '")')
+    df.write('StationsLongLat.Add(new StationsLocation { Url = "' + url +
+             '", Longitude = ' + longitude + ', Latitude = ' + latitude + ' });')
     df.write('\n')
 
 
