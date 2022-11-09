@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using EBike;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
 
@@ -8,7 +9,6 @@ int choosenLocation = Convert.ToInt32(Console.ReadLine());
 generateLocations(choosenLocation);
 
 
-//getCurrentLocationAsync();
 
 
 static void getCurrentLocation()
@@ -21,10 +21,10 @@ static void getCurrentLocation()
     address = address + "%20Stockholm%20Sweden";
 
     //API KEY GET ONE FOR FREE AT POSITIONSTACK.COM
-    string MAP_API_KEY = "TEST";
 
 
-    string fullUrl = ("http://api.positionstack.com/v1/forward?access_key=" + MAP_API_KEY + "&query=" + address);
+
+    string fullUrl = ("http://api.positionstack.com/v1/forward?access_key=" + APIKeys.MAP_API_KEY + "&query=" + address);
 
 
     WebClient client = new WebClient();
