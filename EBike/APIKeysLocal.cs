@@ -4,7 +4,7 @@
     {
         static APIKeys()
         {
-            MAP_API_KEY = "TEST";
+            MAP_API_KEY = "1234567890";
 
         }
     }
