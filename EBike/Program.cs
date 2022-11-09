@@ -3,43 +3,63 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
 
-Console.WriteLine("Location?");
-Console.WriteLine("1. Östermalm \n2. Gärdet \n3. Odenplan \n4. Slussen/Medis \n5. Skanstull");
-int choosenLocation = Convert.ToInt32(Console.ReadLine());
-generateLocations(choosenLocation);
 
 
+Console.WriteLine("1. Find closest available bike based on your location  \n2. Find all available bikes in specific area. Ex Odenplan");
+int chooseMethod = Convert.ToInt32(Console.ReadLine());
 
-
-static void getCurrentLocation()
+if (chooseMethod == 1)
 {
-    Console.WriteLine("Address: ");
-    var address = Convert.ToString(Console.ReadLine());
-    //REPLACE SPACE WITH %20 (URL ENCODING)
-    address = address.Replace(" ", "%20");
-    //ADD STOCKHOLM SWEDEN TO MAKE SURE THERE ISNT A STREET WITH THE SAME NAME IN ANOTHER COUNTRY
-    address = address + "%20Stockholm%20Sweden";
 
-    //API KEY GET ONE FOR FREE AT POSITIONSTACK.COM
+    getCurrentLocation();
+}
+else if (chooseMethod == 2)
+{
+    Console.WriteLine("1. Östermalm \n2. Gärdet \n3. Odenplan \n4. Slussen/Medis \n5. Skanstull");
+    int choosenLocation = Convert.ToInt32(Console.ReadLine());
+    generateLocations(choosenLocation);
 
-
-
-    string fullUrl = ("http://api.positionstack.com/v1/forward?access_key=" + APIKeys.MAP_API_KEY + "&query=" + address);
-
-
-    WebClient client = new WebClient();
-    string request = client.DownloadString(fullUrl);
-    dynamic response = JsonConvert.DeserializeObject<dynamic>(request);
-    string longitude = response["data"][0]["longitude"];
-    string latitude = response["data"][0]["latitude"];
-
-    Console.WriteLine("LONG: " + longitude + "\nLatitude: " + latitude);
 }
 
 
-static void testArea()
+
+static void FindClosestBike(string longitude, string latitude)
 {
-    //TestArea
+
+
+}
+
+static void getCurrentLocation()
+{
+    Console.WriteLine("Address:    #Example Sveavägen 100");
+    var address = Convert.ToString(Console.ReadLine());
+
+    if (address == null)
+    {
+        Console.WriteLine("No address input");
+        getCurrentLocation();
+    }
+    else
+    {
+        //REPLACE SPACE WITH %20 (URL ENCODING)
+        address = address.Replace(" ", "%20");
+        //ADD STOCKHOLM SWEDEN TO MAKE SURE THERE ISNT A STREET WITH THE SAME NAME IN ANOTHER COUNTRY
+        address = address + "%20Stockholm%20Sweden";
+
+        //API KEY GET ONE FOR FREE AT POSITIONSTACK.COM
+        string fullUrl = ("http://api.positionstack.com/v1/forward?access_key=" + APIKeys.MAP_API_KEY + "&query=" + address);
+
+
+        WebClient client = new WebClient();
+        string request = client.DownloadString(fullUrl);
+
+        dynamic response = JsonConvert.DeserializeObject<dynamic>(request);
+        string longitude = response["data"][0]["longitude"];
+        string latitude = response["data"][0]["latitude"];
+
+        //RUN METHOD AND SET LONG+LAT
+        FindClosestBike(longitude, latitude);
+    }
 }
 
 static void generateLocations(int choosenLocation)
@@ -122,9 +142,11 @@ static void generateLocations(int choosenLocation)
         string fullUrl = url + urlExt;
         using (WebClient client = new WebClient())
         {
-            string strPageCode = client.DownloadString(fullUrl.Trim());
-            dynamic dobj = JsonConvert.DeserializeObject<dynamic>(strPageCode);
-            string getName = dobj["mobilityOption"]["station"]["name"];
+
+            string request = client.DownloadString(fullUrl.Trim());
+            dynamic response = JsonConvert.DeserializeObject<dynamic>(request);
+            string getName = response["mobilityOption"]["station"]["name"];
+
             indexnum++;
             var Locations = new List<LocationArea>() {
 
@@ -134,17 +156,20 @@ static void generateLocations(int choosenLocation)
                 Name = getName,
                 Index = indexnum.ToString()
         }
+
         };
-
-            foreach (var l in Locations)
+            if (Locations != null)
             {
-                string strPageCode2 = client.DownloadString(l.Url);
-                dynamic dobj2 = JsonConvert.DeserializeObject<dynamic>(strPageCode2);
-                string bikesAvailable = dobj2["mobilityOption"]["station"]["occupancy"];
+                foreach (var l in Locations)
+                {
+                    string request2 = client.DownloadString(l.Url);
+                    dynamic response2 = JsonConvert.DeserializeObject<dynamic>(request2);
+                    string bikesAvailable = response2["mobilityOption"]["station"]["occupancy"];
 
-                Console.WriteLine(l.Name + ": " + "BIKES AVAILABLE: " + bikesAvailable + "  INDEX = " + l.Index);
+                    Console.WriteLine(l.Name + ": " + "BIKES AVAILABLE: " + bikesAvailable + "  INDEX = " + l.Index);
 
-                ListOfURLS.Add(l.Index + " " + l.Url);
+                    ListOfURLS.Add(l.Index + " " + l.Url);
+                }
             }
 
         }
@@ -172,6 +197,8 @@ static void MoreInfo(string url)
     string strPageCode = client.DownloadString(url);
     dynamic dobj = JsonConvert.DeserializeObject<dynamic>(strPageCode);
     JArray items = (JArray)dobj["mobilityOption"]["station"]["vehicles"];
+
+    //FIND HOW MANY JSON ITEMS FOR THE FOR LOOP
     int length = items.Count;
     Console.WriteLine(url + "\n \n");
 
@@ -185,6 +212,12 @@ static void MoreInfo(string url)
             Console.WriteLine("BIKE ID: " + licPlate + "\nBATTERY LEVEL: " + batteryLevel + "\n \n");
         }
     }
+}
+
+//JUST FOR TESTING
+static void testArea()
+{
+    //TestArea
 }
 
 
